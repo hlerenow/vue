@@ -390,18 +390,27 @@ export function mergeOptions (
   child: Object,
   vm?: Component
 ): Object {
+  // 非生产模式下检测 option 是否合法
   if (process.env.NODE_ENV !== 'production') {
     checkComponents(child)
   }
 
+  // 如果 children 是一个函数组建 就取其options
   if (typeof child === 'function') {
     child = child.options
   }
 
+  // 选项规范化，没有合并操作
+  // 属性格式化为 {type: xxx}
   normalizeProps(child, vm)
+
+  // 格式化 inject provide-inject
   normalizeInject(child, vm)
+
+  // 指令注册
   normalizeDirectives(child)
 
+  // 准备合并操作
   // Apply extends and mixins on the child options,
   // but only if it is a raw options object that isn't
   // the result of another mergeOptions call.
@@ -428,6 +437,7 @@ export function mergeOptions (
     }
   }
   function mergeField (key) {
+    // 策略模式每个字段都有自己的合并策略
     const strat = strats[key] || defaultStrat
     options[key] = strat(parent[key], child[key], vm, key)
   }
